@@ -1,0 +1,69 @@
+# Face Mask Detection with FPGA Acceleration - Git Ignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+.eggs/
+*.egg-info/
+*.egg
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Project specific
+dataset/
+models/*.h5
+models/*.tflite
+models/*.pb
+models/training_plot.png
+logs/
+*.log
+
+# Docker
+.docker/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Build artifacts
+build/
+dist/
+
+# Secrets
+*.env
+.env.local
+
+# Large files
+*.zip
+*.tar.gz
+*.rar
+
+# FPGA specific
+*.bit
+*.bin
+*.mcs
+*.prm
+vivado*.jou
+vivado*.log
+.Xil/
