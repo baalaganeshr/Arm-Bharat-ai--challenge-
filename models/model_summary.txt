@@ -1,0 +1,53 @@
+Model: "sequential"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ conv2d (Conv2D)             (None, 64, 64, 32)        320       
+                                                                 
+ batch_normalization (Batch  (None, 64, 64, 32)        128       
+ Normalization)                                                  
+                                                                 
+ max_pooling2d (MaxPooling2  (None, 32, 32, 32)        0         
+ D)                                                              
+                                                                 
+ conv2d_1 (Conv2D)           (None, 32, 32, 64)        18496     
+                                                                 
+ batch_normalization_1 (Bat  (None, 32, 32, 64)        256       
+ chNormalization)                                                
+                                                                 
+ max_pooling2d_1 (MaxPoolin  (None, 16, 16, 64)        0         
+ g2D)                                                            
+                                                                 
+ conv2d_2 (Conv2D)           (None, 16, 16, 64)        36928     
+                                                                 
+ batch_normalization_2 (Bat  (None, 16, 16, 64)        256       
+ chNormalization)                                                
+                                                                 
+ max_pooling2d_2 (MaxPoolin  (None, 8, 8, 64)          0         
+ g2D)                                                            
+                                                                 
+ conv2d_3 (Conv2D)           (None, 8, 8, 128)         73856     
+                                                                 
+ batch_normalization_3 (Bat  (None, 8, 8, 128)         512       
+ chNormalization)                                                
+                                                                 
+ max_pooling2d_3 (MaxPoolin  (None, 4, 4, 128)         0         
+ g2D)                                                            
+                                                                 
+ flatten (Flatten)           (None, 2048)              0         
+                                                                 
+ dense (Dense)               (None, 128)               262272    
+                                                                 
+ dropout (Dropout)           (None, 128)               0         
+                                                                 
+ dense_1 (Dense)             (None, 64)                8256      
+                                                                 
+ dropout_1 (Dropout)         (None, 64)                0         
+                                                                 
+ dense_2 (Dense)             (None, 2)                 130       
+                                                                 
+=================================================================
+Total params: 401410 (1.53 MB)
+Trainable params: 400834 (1.53 MB)
+Non-trainable params: 576 (2.25 KB)
+_________________________________________________________________

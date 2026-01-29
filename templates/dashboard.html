@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Mask Detection Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+        }
+        
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 { 
+            color: #667eea; 
+            font-size: 28px;
+        }
+        
+        .header p { 
+            color: #666; 
+            margin-top: 5px;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+        
+        .stat-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-value {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+            line-height: 1;
+        }
+        
+        .stat-label { 
+            color: #666; 
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-change {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .green { color: #10b981; }
+        .red { color: #ef4444; }
+        .blue { color: #3b82f6; }
+        .purple { color: #8b5cf6; }
+        .orange { color: #f59e0b; }
+        
+        .charts-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        @media (max-width: 1000px) {
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .chart-container h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .compliance-meter {
+            width: 100%;
+            height: 30px;
+            background: #e5e7eb;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+        
+        .compliance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+            border-radius: 15px;
+            transition: width 0.5s ease;
+        }
+        
+        .last-update {
+            color: #999;
+            font-size: 12px;
+            margin-top: 15px;
+        }
+        
+        .alert {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🎭 Face Mask Detection Dashboard</h1>
+                <p>Real-time compliance monitoring system | Bharat AI-SoC Challenge 2026</p>
+            </div>
+            <div class="status">
+                <div class="status-dot"></div>
+                <span style="color: #10b981; font-weight: 600;">Live</span>
+            </div>
+        </div>
+        
+        <div id="alert" class="alert">
+            ⚠️ <strong>Low Compliance Alert:</strong> Compliance rate has dropped below 70%!
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">😷</div>
+                <div class="stat-label">With Mask</div>
+                <div class="stat-value green" id="with-mask">0</div>
+                <div class="stat-change green">✓ Compliant</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">😐</div>
+                <div class="stat-label">Without Mask</div>
+                <div class="stat-value red" id="without-mask">0</div>
+                <div class="stat-change red">✗ Non-compliant</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-label">Total Detections</div>
+                <div class="stat-value blue" id="total">0</div>
+                <div class="stat-change" id="entries-count">0 log entries</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-label">Compliance Rate</div>
+                <div class="stat-value purple" id="compliance">0%</div>
+                <div class="compliance-meter">
+                    <div class="compliance-fill" id="compliance-bar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="charts-row">
+            <div class="chart-container">
+                <h2>📈 Hourly Detection Statistics</h2>
+                <canvas id="hourlyChart"></canvas>
+                <div class="last-update" id="last-update">Last updated: --</div>
+            </div>
+            <div class="chart-container">
+                <h2>🥧 Detection Distribution</h2>
+                <canvas id="pieChart"></canvas>
+                <div class="btn-group">
+                    <button class="btn" onclick="exportData()">📥 Export Report</button>
+                    <button class="btn btn-secondary" onclick="refreshData()">🔄 Refresh</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Face Mask Detection System | Team: Baala Ganesh R, Kajendren V, Hirshikesh Prasath S</p>
+            <p>P.S.R Engineering College, Sivakasi | Mentor: Dr. Mohan B</p>
+        </div>
+    </div>
+    
+    <script>
+        let hourlyChart = null;
+        let pieChart = null;
+        
+        // Initialize charts
+        function initCharts() {
+            const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
+            hourlyChart = new Chart(hourlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'With Mask',
+                            data: [],
+                            backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                            borderRadius: 5
+                        },
+                        {
+                            label: 'Without Mask',
+                            data: [],
+                            backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                            borderRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+            
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['With Mask', 'Without Mask'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(239, 68, 68, 0.8)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    cutout: '60%'
+                }
+            });
+        }
+        
+        function updateStats() {
+            fetch('/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.totals) {
+                        // Update stat cards
+                        document.getElementById('with-mask').textContent = data.totals.with_mask.toLocaleString();
+                        document.getElementById('without-mask').textContent = data.totals.without_mask.toLocaleString();
+                        document.getElementById('total').textContent = data.totals.total.toLocaleString();
+                        document.getElementById('compliance').textContent = data.totals.compliance + '%';
+                        document.getElementById('entries-count').textContent = (data.recent_count || 0) + ' log entries';
+                        
+                        // Update compliance bar
+                        document.getElementById('compliance-bar').style.width = data.totals.compliance + '%';
+                        
+                        // Show/hide alert
+                        const alert = document.getElementById('alert');
+                        if (data.totals.compliance < 70 && data.totals.total > 0) {
+                            alert.classList.add('show');
+                        } else {
+                            alert.classList.remove('show');
+                        }
+                        
+                        // Update pie chart
+                        pieChart.data.datasets[0].data = [data.totals.with_mask, data.totals.without_mask];
+                        pieChart.update();
+                        
+                        // Update hourly chart
+                        if (data.hourly && data.hourly.length > 0) {
+                            hourlyChart.data.labels = data.hourly.map(h => h.Hour + ':00');
+                            hourlyChart.data.datasets[0].data = data.hourly.map(h => h.With_Mask);
+                            hourlyChart.data.datasets[1].data = data.hourly.map(h => h.Without_Mask);
+                            hourlyChart.update();
+                        }
+                        
+                        // Update timestamp
+                        document.getElementById('last-update').textContent = 'Last updated: ' + (data.timestamp || new Date().toLocaleString());
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching stats:', error);
+                });
+        }
+        
+        function refreshData() {
+            updateStats();
+        }
+        
+        function exportData() {
+            fetch('/api/export')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ Report exported successfully!\n\nFile: ' + data.file + '\nRows: ' + data.rows);
+                    } else {
+                        alert('❌ Export failed: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    alert('❌ Export failed: ' + error);
+                });
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+            updateStats();
+            
+            // Auto-refresh every 5 seconds
+            setInterval(updateStats, 5000);
+        });
+    </script>
+</body>
+</html>

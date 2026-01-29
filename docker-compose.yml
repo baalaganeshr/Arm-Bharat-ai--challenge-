@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mask-detection:
+    build: .
+    container_name: mask-detection-dev
+    volumes:
+      - .:/app
+      - ./dataset:/app/dataset
+      - ./models:/app/models
+      - ./logs:/app/logs
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - TF_CPP_MIN_LOG_LEVEL=2
+    # Uncomment below if you have NVIDIA Docker runtime installed
+    # runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    stdin_open: true
+    tty: true
+    # network_mode: host doesn't work on Windows Docker Desktop
+    # Use explicit port mapping instead
+    ports:
+      - "9000:9000"
+    # For webcam access (Linux)
+    # devices:
+    #   - /dev/video0:/dev/video0
