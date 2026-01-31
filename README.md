@@ -39,7 +39,7 @@ Real-time face mask detection using **hardware-software co-design** with Raspber
 |--------|-----|------|-------------|
 | **Latency** | 120ms | 40ms | **3.0x** |
 | **FPS** | 8.2 | 25.0 | **3.0x** |
-| **Accuracy** | 70% | 70% | Same |
+| **Accuracy (GPU‑trained model)** | 92.7% | 92.7% | Better model |
 
 ---
 
@@ -58,6 +58,22 @@ python modified/detect_cpu.py
 # Or install locally
 pip install -r requirements.txt
 python modified/detect_cpu.py
+```
+
+### Use the new high-accuracy detector
+
+```bash
+# From repo root
+python detect_final.py  # uses models/best_model.h5 (128x128 CNN, ~92.7% val accuracy)
+```
+
+### Retrain with GPU (inside container)
+
+```bash
+docker exec -it mask-detection-dev bash
+python /app/train_improved.py
+# Best checkpoint -> /app/models/best_model.h5
+# Final model      -> /app/models/mask_detector_128x128_final.h5
 ```
 
 ---
