@@ -10,17 +10,16 @@ services:
       - ./models:/app/models
       - ./logs:/app/logs
     environment:
-      - NVIDIA_VISIBLE_DEVICES=all
       - TF_CPP_MIN_LOG_LEVEL=2
     # Uncomment below if you have NVIDIA Docker runtime installed
     # runtime: nvidia
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
     stdin_open: true
     tty: true
     # network_mode: host doesn't work on Windows Docker Desktop
